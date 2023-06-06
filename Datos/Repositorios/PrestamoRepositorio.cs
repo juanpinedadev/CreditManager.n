@@ -29,7 +29,7 @@ namespace Datos.Repositorios
                     command.Parameters.AddWithValue("@IdCliente", prestamo.Cliente.Id);
                     command.Parameters.AddWithValue("@IdEmpleado", prestamo.Empleado.Id);
                     command.Parameters.AddWithValue("@IdFrecuenciaPago", prestamo.FrecuenciaPrestamo.Id);
-                    command.Parameters.AddWithValue("@Monto", prestamo.MontoSolicitado);
+                    command.Parameters.AddWithValue("@MontoSolicitado", prestamo.MontoSolicitado);
                     command.Parameters.AddWithValue("@TasaInteres", prestamo.TasaInteres);
                     command.Parameters.AddWithValue("@NumeroCuotas", prestamo.NumeroCuotas);
 
@@ -110,14 +110,30 @@ namespace Datos.Repositorios
 
                     while (reader.Read())
                     {
+                        
                         Prestamo prestamo = new Prestamo();
                         prestamo.Id = Convert.ToInt32(reader["IdPrestamo"]);
 
                         Cliente cliente = new Cliente();
                         cliente.Id = Convert.ToInt32(reader["IdCliente"]);
 
+
+                        cliente.Persona = new Persona();//
+                        cliente.Persona.PrimerNombre= reader["PrimerNombre"].ToString(); //mv
+                        cliente.Persona.SegundoNombre = reader["SegundoNombre"].ToString();
+                        cliente.Persona.PrimerApellido = reader["PrimerApellido"].ToString();
+                        cliente.Persona.SegundoApellido = reader["SegundoApellido"].ToString();
+                        cliente.Persona.NumeroDocumento = reader["NumeroDocumento"].ToString();
+
+
                         Empleado empleado = new Empleado();
                         empleado.Id = Convert.ToInt32(reader["IdEmpleado"]);
+                        empleado.Persona = new Persona();   
+                        empleado.Persona.PrimerNombre= reader["PriNombre"].ToString(); //mv
+                        empleado.Persona.SegundoNombre = reader["SegNombre"].ToString();
+                        empleado.Persona.PrimerApellido = reader["PriApe"].ToString();
+                        empleado.Persona.SegundoApellido = reader["SegApe"].ToString();
+
 
                         FrecuenciaPago frecuenciaPago = new FrecuenciaPago();
                         frecuenciaPago.Id = Convert.ToInt32(reader["IdFrecuenciaPago"]);
@@ -193,5 +209,71 @@ namespace Datos.Repositorios
 
             return cuotas;
         }
+
+        public List<Cuota> ListaCuotasPagadas()
+        {
+            List<Cuota> cuotasPagadas = new List<Cuota>();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+
+                    SqlCommand command = new SqlCommand("SELECT * FROM VistaCuotasPagadas", connection);
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        //Cuota cuota = new Cuota();
+                        //cuota.MontoCuota= Convert.ToDecimal(reader["MontoCuota"]);
+                        //cuota.FechaPago = Convert.ToDateTime(reader["FechaPago"]);
+
+                        //cuota.Prestamo = new Prestamo();
+                        //cuota.Prestamo.Id = Convert.ToInt32(reader["IdPrestamo"]);
+
+                        //Prestamo prestamo = new Prestamo();
+                        //prestamo.Cliente = new Cliente();
+                        //prestamo.Cliente.Persona = new Persona();
+                        //prestamo.Cliente.Persona.PrimerNombre = reader["PrimerNombre"].ToString();
+                        //prestamo.Cliente.Persona.SegundoNombre = reader["SegundoNombre"].ToString();
+                        //prestamo.Cliente.Persona.PrimerApellido = reader["PrimerApellido"].ToString();
+                        //prestamo.Cliente.Persona.SegundoApellido = reader["SegundoApellido"].ToString();
+
+                        //cuota.Prestamo=prestamo;
+                                
+                        //cuotasPagadas.Add(cuota);
+
+                        Cuota cuota = new Cuota();
+                        cuota.MontoCuota = Convert.ToDecimal(reader["MontoCuota"]);
+                        cuota.FechaPago = Convert.ToDateTime(reader["FechaPago"]);
+
+                        Prestamo prestamo = new Prestamo();
+                        prestamo.Id = Convert.ToInt32(reader["IdPrestamo"]);
+                        prestamo.Cliente = new Cliente();
+                        prestamo.Cliente.Persona = new Persona();
+                        prestamo.Cliente.Persona.PrimerNombre = reader["PrimerNombre"].ToString();
+                        prestamo.Cliente.Persona.SegundoNombre = reader["SegundoNombre"].ToString();
+                        prestamo.Cliente.Persona.PrimerApellido = reader["PrimerApellido"].ToString();
+                        prestamo.Cliente.Persona.SegundoApellido = reader["SegundoApellido"].ToString();
+
+                        cuota.Prestamo = prestamo;
+
+                        cuotasPagadas.Add(cuota);
+
+
+                    }
+
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error: " + ex.Message);
+                }
+            }
+
+            return cuotasPagadas;
+        }
+
     }
 }

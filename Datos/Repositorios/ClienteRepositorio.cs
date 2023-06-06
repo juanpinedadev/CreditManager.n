@@ -120,23 +120,25 @@ namespace Datos.Repositorios
 
                         // Parámetro de entrada: IdUsuario
                         command.Parameters.AddWithValue("@IdCliente", id);
+                        command.Parameters.Add("@Resultado",SqlDbType.Int).Direction = ParameterDirection.Output;
+                        command.Parameters.Add("@Mensaje", SqlDbType.VarChar, 500 ).Direction = ParameterDirection.Output;
 
-                        // Parámetro de salida: Resultado
-                        SqlParameter resultadoParameter = new SqlParameter("@Resultado", SqlDbType.Int);
-                        resultadoParameter.Direction = ParameterDirection.Output;
-                        command.Parameters.Add(resultadoParameter);
+                        //// Parámetro de salida: Resultado
+                        //SqlParameter resultadoParameter = new SqlParameter("@Resultado", SqlDbType.Int);
+                        //resultadoParameter.Direction = ParameterDirection.Output;
+                        //command.Parameters.Add(resultadoParameter);
 
-                        // Parámetro de salida: Mensaje
-                        SqlParameter mensajeParameter = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500);
-                        mensajeParameter.Direction = ParameterDirection.Output;
-                        command.Parameters.Add(mensajeParameter);
+                        //// Parámetro de salida: Mensaje
+                        //SqlParameter mensajeParameter = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500);
+                        //mensajeParameter.Direction = ParameterDirection.Output;
+                        //command.Parameters.Add(mensajeParameter);
 
                         // Ejecutar el comando
                         command.ExecuteNonQuery();
 
                         // Obtener los valores de salida
-                        int resultadoValue = Convert.ToInt32(resultadoParameter.Value);
-                        mensaje = Convert.ToString(mensajeParameter.Value);
+                        int resultadoValue = Convert.ToInt32(command.Parameters["@Resultado"].Value.ToString());
+                        mensaje = Convert.ToString(command.Parameters["@Mensaje"].Value);
 
                         // Verificar el resultado
                         resultado = resultadoValue == 1;

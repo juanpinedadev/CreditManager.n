@@ -53,6 +53,7 @@ namespace Presentacion.Formularios
 
         private void btnGuardar_Click(object sender, EventArgs e)
         {
+            
             CrearPrestamo();
         }
 
@@ -64,6 +65,11 @@ namespace Presentacion.Formularios
         private void btnReporte_Click(object sender, EventArgs e)
         {
             GenerarReporte(new ReportePrestamosActivos());
+        }
+
+        private void btnLimpiar_Click(object sender, EventArgs e)
+        {
+            LimpiarFormulario();
         }
 
         #endregion
@@ -124,7 +130,7 @@ namespace Presentacion.Formularios
 
                 // Agregar la cuota a la tabla
                 tablaCuotas.Rows.Add(i, valorCuota.ToString("C", new CultureInfo("es-CO")),
-                    "Pendiente", fechaVencimiento.ToString("dd/MM/yyyy"));
+                                     "Pendiente", fechaVencimiento.ToString("dd/MM/yyyy"));
 
                 // Actualizar la fecha de pago para la siguiente cuota
                 fechaPago = fechaVencimiento;
@@ -164,14 +170,15 @@ namespace Presentacion.Formularios
                 {
                     MessageBox.Show($"Prestamo creado exitosamente.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    //LimpiarFormulario();
-                    //ListarClientes();
+                    
+                    LimpiarFormulario();
                 }
                 else
                 {
                     MessageBox.Show(mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            ListarPrestamosActivos();
         }
 
         private void ListarPrestamosActivos()
@@ -182,8 +189,27 @@ namespace Presentacion.Formularios
 
                 List<Prestamo> prestamos = PrestamoServicio.ListarPrestamosActivos();
 
+
+
                 foreach (Prestamo prestamo in prestamos)
                 {
+                    //Convertir los nombres en un string unico//
+                    string primerNombreC = prestamo.Cliente.Persona.PrimerNombre.Trim();
+                    string segundoNombreC = prestamo.Cliente.Persona.SegundoNombre.Trim();
+                    string primerApellidoC = prestamo.Cliente.Persona.PrimerApellido.Trim();
+                    string segundoApellidoC = prestamo.Cliente.Persona.SegundoApellido.Trim();
+                    //Convertir los nombres en un string unico Empleado//
+
+                    string primerNombreE = prestamo.Empleado.Persona.PrimerNombre.Trim();
+                    string segundoNombreE = prestamo.Empleado.Persona.SegundoNombre.Trim();
+                    string primerApellidoE = prestamo.Empleado.Persona.PrimerApellido.Trim();
+                    string segundoApellidoE = prestamo.Empleado.Persona.SegundoApellido.Trim();
+
+                    string nombreCompletoCliente = string.Join(" ", primerNombreC, segundoNombreC, primerApellidoC, segundoApellidoC).Trim();
+                    string nombreCompletoEmpleado = string.Join(" ", primerNombreE, segundoNombreE, primerApellidoE, segundoApellidoE).Trim();
+
+                    //Hasta aqui
+
                     // Convertir los valores a pesos colombianos y formato porcentaje
                     string montoSolicitado = prestamo.MontoSolicitado.ToString("C", new CultureInfo("es-CO"));
                     string totalIntereses = prestamo.TotalIntereses.ToString("C", new CultureInfo("es-CO"));
@@ -192,18 +218,27 @@ namespace Presentacion.Formularios
 
                     tabla.Rows.Add(new object[]
                     {
-                prestamo.Id,
-                prestamo.FrecuenciaPrestamo.Id,
-                prestamo.Cliente.Id,
-                prestamo.Empleado.Id,
-                tasaInteres,
-                montoSolicitado,
-                totalIntereses,
-                totalPagar,
-                prestamo.NumeroCuotas,
-                prestamo.Estado,
-                prestamo.FechaPrestamo,
-                prestamo.FechaVencimiento
+                        prestamo.Id,
+
+
+                        nombreCompletoCliente, //mv
+                        prestamo.Cliente.Persona.NumeroDocumento,//mv
+                        prestamo.FrecuenciaPrestamo.Id,
+                        prestamo.Cliente.Id,
+                        prestamo.Empleado.Id,
+                        tasaInteres,
+                        montoSolicitado,
+                        totalIntereses,
+                        totalPagar,
+                        prestamo.NumeroCuotas,
+                        prestamo.Estado,
+                        prestamo.FechaPrestamo,
+                        prestamo.FechaVencimiento,
+
+
+                        nombreCompletoEmpleado
+
+                        
                     });
                 }
 
@@ -338,7 +373,29 @@ namespace Presentacion.Formularios
             }
         }
 
+        private void LimpiarFormulario()
+        {
+            tablaCuotas.Rows.Clear();
+            txtNombreCompletoCliente.Clear();
+            txtNumeroDocumentoCliente.Clear();
+            txtTipoDocumentoCliente.Clear();
+            txtNombreCompletoEmpleado .Clear();
+            txtCargoEmpleado .Clear();
+            txtNumeroDocumentoEmpleado.Clear();
+            txtTipoDocumentoEmpleado.Clear();
+            txtMontoPrestamo.Clear();
+            numNumeroCuotas.Value = 0;
+            txtTasInteres.Value= 1;
+            boxFrecuenciaPago.SelectedIndex = 0;
+            txtTotalIntereses.Clear();
+            txtValorCuota.Clear();
+            txtTotalPrestamo.Clear();
+
+            //HabilitarGrupos(false);
+        }
+
         #endregion
+
 
     }
 }

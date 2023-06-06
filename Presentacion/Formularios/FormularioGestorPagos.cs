@@ -29,7 +29,7 @@ namespace Presentacion.Formularios
         #region Eventos
         private void FormularioGestorPagos_Load(object sender, EventArgs e)
         {
-
+            ListarPrestamoPagados();
         }
 
         private void txtIdPrestamo_KeyPress(object sender, KeyPressEventArgs e)
@@ -105,7 +105,7 @@ namespace Presentacion.Formularios
             }
 
             DialogResult result = MessageBox.Show($"¿Desea registrar este pago? (ID CUOTA: {Pago.Cuota.Id})", "Confirmación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
+             
             if (result == DialogResult.Yes)
             {
                 try
@@ -225,6 +225,9 @@ namespace Presentacion.Formularios
             }
         }
 
+
+
+
         private void LimpiarFormulario()
         {
             txtIdPrestamo.Clear();
@@ -234,6 +237,53 @@ namespace Presentacion.Formularios
             tablaCuotas.DataSource = null;
         }
 
-        #endregion
+
+        private void ListarPrestamoPagados()
+        {
+            try
+            {
+                tabla.Rows.Clear();
+
+                List<Cuota> cuotasPagadas = prestamoServicio.ListaCuotasPagadas();
+
+
+
+                foreach (Cuota cuota in cuotasPagadas)
+                {
+                    //Convertir los nombres en un string unico//
+                    string primerNombreC = cuota.Prestamo.Cliente.Persona.PrimerNombre.Trim();
+                    string segundoNombreC = cuota.Prestamo.Cliente.Persona.SegundoNombre.Trim();
+                    string primerApellidoC = cuota.Prestamo.Cliente.Persona.PrimerApellido.Trim();
+                    string segundoApellidoC = cuota.Prestamo.Cliente.Persona.SegundoApellido.Trim();
+                    //Convertir los nombres en un string unico Empleado//
+
+                    string nombreCompletoCliente = string.Join(" ", primerNombreC, segundoNombreC, primerApellidoC, segundoApellidoC).Trim();
+
+                    // Convertir los valores a pesos colombianos y formato porcentaje
+                    string valorCuota = cuota.MontoCuota.ToString("C", new CultureInfo("es-CO"));
+
+
+                    tabla.Rows.Add(new object[]
+                    {
+                        cuota.Prestamo.Id,
+                        nombreCompletoCliente, //mv
+                        valorCuota,
+                        cuota.FechaPago.Value
+
+
+                    });
+                }
+
+                tabla.ClearSelection();
+
+                contador.Text = cuotasPagadas.Count.ToString();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            #endregion
+        }
     }
 }

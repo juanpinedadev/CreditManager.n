@@ -27,5 +27,10 @@ namespace Negocio.Servicios
         {
             return repositorio.RegistrarPago(pago, out mensaje);
         }
+
+        public List<Cuota> ListaCuotasPagadas()
+        {
+            return repositorio.ListaCuotasPagadas();
+        }
     }
 }
